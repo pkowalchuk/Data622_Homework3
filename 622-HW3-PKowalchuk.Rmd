@@ -1,0 +1,417 @@
+---
+title: "Data 622 - Homework 3"
+author: "Peter Kowalchuk"
+date: "4/28/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(kableExtra)
+```
+
+
+1) you can  provide feedback how he can improve his approach to  data science.
+
+2) You may also identify and justify the choice of classifiers Ruffio ran to complete this task.
+
+3) You can compare the performance metrics of classifiers and provide an explanation for the observed performance variances.
+
+#Ruffio's data
+
+We start by looking at the data Ruffio has to work with.
+
+```{r}
+traindatafile<-'car_eval_train.csv'
+trdata<-read.csv(traindatafile,head=T,sep=',')
+
+car_eval<-trdata
+names(car_eval)<-c("buying","maint","doors","persons","lug_boot","safety","class")
+names(trdata)<-c("buying","maint","doors","persons","lug_boot","safety","class")
+
+trdata %>% kable() %>% kable_styling() %>% scroll_box(width = "800px", height = "400px")
+```
+
+```{r}
+nrow(trdata)
+```
+
+```{r}
+tstdatafile<-'car_eval_test.csv'
+tstdata<-read.csv(tstdatafile,head=T,sep=',')
+names(tstdata)<-names(car_eval)
+
+tstdata %>% kable() %>% kable_styling() %>% scroll_box(width = "800px", height = "400px")
+```
+
+```{r}
+nrow(tstdata)
+```
+
+Ruffio is trying to predict the class variable our of 6 predictor variables. The training and testing data set also have a healthy number of entries, good dataset size.
+
+A look at the distribution of class will tell us if the training data is balanced or not:
+
+```{r}
+summary(trdata)
+```
+
+The data looks to be somewhat unbalanced in the class variable. The predictor variables look well distributed, but the class variable is laking samples with the 'good' and 'vgood' labels. Ruffio might want to consider some balancing techniques to pre-condition his data.
+
+##Models
+
+We do not know what the data used in this analysis is for. Model performance can be measured by accuracy, but it will also be influenced by the use case. A model with high accuracy could be discarded because the number of false positives are too high. Bu in other situations, say in critical operations where the cost of missing a positive is too high, false positives might be preferred over false negatives. The cost of missing a class might be very high, so we are better off misclassifying. We can also view this using sensitivity and specificity.
+
+For Ruffio we will discuss accuracy together with false positive and false negative results, within the context of the classifier type, sensitivity and specificity.
+
+#1-Ruffio's first model logistic regression
+
+Ruffio's first model is a multinomial logistic regression model with 4 levels, one for each output class.
+
+```{r message=FALSE, warning=FALSE}
+x<-tstdata[,1:6]
+y<-tstdata[[7]]
+
+if(!require(VGAM)) library(VGAM)
+if(!require(caret)) library(caret)
+
+vglm_model<-vglm(class~buying+maint+doors+persons+lug_boot+safety,family = "multinomial",data=car_eval)
+
+vglm_class_probabilities<-predict(vglm_model,tstdata[,1:6],type="response")
+
+vglm_predicted_class<-apply(vglm_class_probabilities,1,which.max)
+
+vglm_pred<-c()
+vglm_pred[which(vglm_predicted_class=="1")]<-levels(y)[1]
+vglm_pred[which(vglm_predicted_class=="2")]<-levels(y)[2]
+vglm_pred[which(vglm_predicted_class=="3")]<-levels(y)[3]
+vglm_pred[which(vglm_predicted_class=="4")]<-levels(y)[4]
+
+vglm_mtab<-table(vglm_pred,tstdata[[7]])
+(vglm_cmx<-confusionMatrix(table(vglm_pred,tstdata[[7]])))
+
+(vglm_accuracy<-sum(diag(vglm_mtab))/sum(vglm_mtab))
+```
+
+Loggistic regression classifiers are based on a linear model, that is classes are devided using a linear hyperplanes. With an accuracy of 0.93, we can see how this model performs rather well. But all classes are not predicted the same. if for instance we are very concerned about making sure we do actually predict all the vgood classes, say this is a class that is very important to identify (the indicator to a desiece in medicine, or an indicator of a catastrophic failure in engineering), this is an extraimly goo classifier. We see how sensitivity for vgood is 1, the classifier actually identifies all the aoccurences of our class. It is true there are some false negatives for this class, specificity is a bit lower than 1, but it is still very high, we really only see 4 instances where occurences of other classes where label as vgood.
+
+Performance isn’t the same for all classes. If good is a critical class to always identify, logistic regression isn't doing such a great job. With a sensitivity of 0.74, we see 6 instances where this class was missed. Specificity is higher, with lower number of other class occurrences being mislabelled. But we are measuring performance from the point of view of not missing classifications. What this tell us with this kind of classifier is that it is hard to find a linear hyperplane to segregate this class. It can also be due to the lo number of this class occurrences in the dataset as described in the data analysis section.
+
+#2-Ruffio's second model - LDA
+
+```{r}
+if(!require(MASS)) library(MASS)
+
+lda_model<-lda(class~buying+maint+doors+persons+lug_boot+safety,data=car_eval)
+
+lda_class_probabilities<-predict(lda_model,tstdata[,1:6],type="response")
+
+(lda_cmx<-table(lda_class_probabilities$class,tstdata[[7]]))
+lda_mtab<-table(lda_class_probabilities$class,tstdata[[7]])
+(lda_accuracy<-sum(diag(lda_cmx))/sum(lda_cmx))
+ lda_cmx<-confusionMatrix(table(lda_class_probabilities$class,tstdata[[7]]))
+```
+ 
+LDA is a classifier based on covariance. So here instead of being able to separate classes with a hyperplane, we are more interested in the correlation of the classes in the dataset. In LDA we are trying to separate the classes in a lower dimension. The algorithm does dimension reduction and segregates the data in new lower dimension axis. Ruffio's data has 4 classes, so LDA will lower the dimension to 3, which allows us to visualize the data in a plot. We can see below how all classes are segregated in the lower dimension. The reduced accuracy tells us that it is harder to make this separation. In the plot we also see how two classes are misrepresented with very few instances.
+
+```{r}
+library("scatterplot3d")
+
+df<-as.data.frame(lda_class_probabilities$x)
+colors <- c("#56B4E9", "#E69F00","#E694E9","#ABBBB9")
+yhat<-as.numeric(lda_class_probabilities$class)
+colors <- colors[as.numeric(yhat)]
+scatterplot3d(df$LD1,df$LD3,df$LD3,color = colors)
+```
+
+
+As before, if vgood is an important class, this classifier doesn't perform as good as the previous. Here we see 9 classification of vgood that were mislabel as something else. The same is true for our good class, where many instances of the class where labelled incorrectly.
+
+#3-Ruffio's third model - decision trees
+ 
+```{r}
+if(!require(rpart)) library(rpart)
+if(!require(rpart.plot)) library(rpart.plot)
+if(!require(randomForest)) library(randomForest)
+
+rpart_model<-rpart(class~buying+maint+doors+persons+lug_boot+safety,data=car_eval)
+
+rpart_class_probabilities<-predict(rpart_model,tstdata[,1:6],type="class")
+
+(rpart_mtab<-table(rpart_class_probabilities,tstdata[[7]]))
+rpart_cmx<-confusionMatrix(rpart_mtab)
+(rpart_accuracy<-sum(diag(rpart_mtab))/sum(rpart_mtab))
+```
+
+With this classifier we are now looking at separating the data using thresholds that break the data into smaller groups until we can classify all the instances. So here we start by calculating the probability of an entry being in one group versus all others, and then continue the process until all points are classified. Ruffio can actually plot this classification, and see how well the points are being assigned.
+
+```{r}
+library(rpart.plot)
+library(RColorBrewer)
+library(rattle)
+fancyRpartPlot(rpart_model,caption=NULL)
+```
+
+We see that this classifier has better accuracy that the previous, but again not as good as logistic regression. We also find that if being able to classify all possible vgood instances, then again the first algorithm shows the best results, as this one misses 5 instances of this class.
+
+#4-Ruffio's bagging classifier
+
+So far Ruffio's has been working on single models. Now he has moved to look at more complex approaches where many models are combined in an ensemble. These classifier might show better results, unless Occam's Razor's applies an a simpler model is better.
+
+```{r}
+#bagging
+if(!require(ipred)) library(ipred)
+
+bag_model<-bagging(class~buying+maint+doors+persons+lug_boot+safety,data=car_eval)
+
+bag_class_probabilities<-predict(bag_model,tstdata[,1:6])#,type="response")
+
+bag_mtab<-table(bag_class_probabilities,tstdata[[7]])
+(bag_cmx<-confusionMatrix(bag_mtab))
+
+(bag_accuracy<-sum(diag(bag_mtab))/sum(bag_mtab))
+```
+
+Looking at the results we observe a much better accuracy compared to previous classifiers. At 0.98, this is the best accuracy Ruffio has been able to get. But if again being able to label all instances of vgood, we see that sensitivity for this class is less than 1, as he obtained with the logistic regression. Although we only mis label 1 vgood. The other class we looked at, good, on the other hand shows a sensitivity of 1, so we manage to label all instances of this class. Again we are looking at the analysis as if these are the most important classes, so we do not rank the classifier on specificity necesarily.
+
+Bagging is an enssemble method in which the data is sampled with replacement (bootstrap), it is used to train a classifier. This is done several times, and the results of all the models is combined into a simgle solution (aggreation). The final classification is taken as a simple vote of the different classifications. When running bagging on regressions, the results are averaged. Many classifiers can be used, but in this case Rffio is aggregating decision trees. So this model is somewhat equivalent to running the previous model several times and then aggregating the results. As expected a better accuracy is derived by this aggregation.
+
+#5-Ruffio's boosting classifier
+
+Next Ruffio has tried a gradient boosting algorithm. This is another kind on ensemble algorithm in which several model are combined, but instead of running the model is parallel and then combining results, here model are run in series, which each output serving as an input to the next. Which each new run of the clssifier, the results are improved. Also, each classifiers performance can actually be rather low (shallow trees can be used for example), and whith feeding the results to a new classifier, the overall effect is an improved performance.
+
+```{r}
+nlev<-4 # number of classes
+if(!require(gbm)) library(gbm)
+gbm_model<-gbm(class~buying+maint+doors+persons+lug_boot+safety, 	
+  data=car_eval,
+  n.trees=5000,
+  interaction.depth=nlev,
+	shrinkage=0.001,
+  bag.fraction=0.8,
+  distribution="multinomial",
+  verbose=FALSE,
+  n.cores=4)
+gbm_class_probabilities<-predict(gbm_model,tstdata[,1:6],n.trees=5000,type="response")
+gbm_pred<-apply(gbm_class_probabilities,1,which.max)
+
+gbm_predicted_class<-unlist(lapply(gbm_pred,FUN=function(x)levels(tstdata[[7]])[[x]]))
+
+(gbm_mtab<-table(gbm_predicted_class,tstdata[[7]]))
+(gbm_accuracy<-sum(diag(gbm_mtab))/sum(gbm_mtab))
+```
+
+As we can see, accuracy is again higher than our first set of classifiers, but slightly lower than our bagging model. Sensitivity is also in line with bagging, but not as good for the vgood class as our first logistic regression model. But interestingly, there are a couple of hyper-parameters in gradient boosting we can work with. GBM uses the gradient decent technique to find the classification of classes. The shrinkage hyper parameter controls the step of the gradient decent. SO a smaller step would require more iterations. Here we are doing 5000 steps, which seems like a lot. But if we actually run the classifier again with more steps we see accuracy increasing, an indication that gradient decent hasn't found a minimal perhaps. 
+
+```{r}
+nlev<-4 # number of classes
+if(!require(gbm)) library(gbm)
+gbm_model<-gbm(class~buying+maint+doors+persons+lug_boot+safety, 	
+  data=car_eval,
+  n.trees=20000,
+  interaction.depth=nlev,
+	shrinkage=0.001,
+  bag.fraction=0.8,
+  distribution="multinomial",
+  verbose=FALSE,
+  n.cores=4)
+gbm_class_probabilities<-predict(gbm_model,tstdata[,1:6],n.trees=20000,type="response")
+gbm_pred<-apply(gbm_class_probabilities,1,which.max)
+
+gbm_predicted_class<-unlist(lapply(gbm_pred,FUN=function(x)levels(tstdata[[7]])[[x]]))
+
+(gbm_mtab<-table(gbm_predicted_class,tstdata[[7]]))
+(gbm_accuracy<-sum(diag(gbm_mtab))/sum(gbm_mtab))
+```
+
+In fact, we can run with a smaller shrinkage or step and find even better accuracy.
+
+```{r}
+nlev<-4 # number of classes
+if(!require(gbm)) library(gbm)
+gbm_model<-gbm(class~buying+maint+doors+persons+lug_boot+safety, 	
+  data=car_eval,
+  n.trees=5000,
+  interaction.depth=nlev,
+	shrinkage=0.1,
+  bag.fraction=0.8,
+  distribution="multinomial",
+  verbose=FALSE,
+  n.cores=4)
+gbm_class_probabilities<-predict(gbm_model,tstdata[,1:6],n.trees=5000,type="response")
+gbm_pred<-apply(gbm_class_probabilities,1,which.max)
+
+gbm_predicted_class<-unlist(lapply(gbm_pred,FUN=function(x)levels(tstdata[[7]])[[x]]))
+
+(gbm_mtab<-table(gbm_predicted_class,tstdata[[7]]))
+(gbm_accuracy<-sum(diag(gbm_mtab))/sum(gbm_mtab))
+```
+
+But increasing the step needs to be done with caution. Changing this parameter will also affect regularization, or the amount of overfitting of the model.
+
+We rerun his original gbm model since he will use it in later models.
+
+```{r}
+nlev<-4 # number of classes
+if(!require(gbm)) library(gbm)
+gbm_model<-gbm(class~buying+maint+doors+persons+lug_boot+safety, 	
+  data=car_eval,
+  n.trees=5000,
+  interaction.depth=nlev,
+	shrinkage=0.001,
+  bag.fraction=0.8,
+  distribution="multinomial",
+  verbose=FALSE,
+  n.cores=4)
+gbm_class_probabilities<-predict(gbm_model,tstdata[,1:6],n.trees=5000,type="response")
+gbm_pred<-apply(gbm_class_probabilities,1,which.max)
+
+gbm_predicted_class<-unlist(lapply(gbm_pred,FUN=function(x)levels(tstdata[[7]])[[x]]))
+
+(gbm_mtab<-table(gbm_predicted_class,tstdata[[7]]))
+(gbm_accuracy<-sum(diag(gbm_mtab))/sum(gbm_mtab))
+```
+
+#6-Ruffio's second ensamble boosting classifier
+
+Now he will rerun gradient boosting and combine the results with a first run. This is similar to what is done in bagging, but instead of combining several bootstraped model, he is combining results of boosting ensembles.
+
+```{r}
+gbm_model2<-gbm(class~buying+maint+doors+persons+lug_boot+safety,
+                data=car_eval,
+                n.trees=5000,
+                interaction.depth=nlev,
+                shrinkage=0.001,
+                bag.fraction=0.8,
+                distribution="multinomial",
+                verbose=FALSE,
+                n.cores=4)
+gbm_class_probabilities2<-predict(gbm_model2,tstdata[,1:6],n.trees=5000,type="response")
+gbm_pred2<-apply(gbm_class_probabilities2,1,which.max)
+gbm_pred2[which(gbm_pred2=="1")]<-levels(tstdata[[7]])[1]
+gbm_pred2[which(gbm_pred2=="2")]<-levels(tstdata[[7]])[2]
+gbm_pred2[which(gbm_pred2=="3")]<-levels(tstdata[[7]])[3]
+gbm_pred2[which(gbm_pred2=="4")]<-levels(tstdata[[7]])[4]
+gbm_pred2<-as.factor(gbm_pred2)
+l<-union(gbm_pred2,tstdata[[7]])
+(gbm_mtab2<-table(factor(gbm_pred2,l),factor(tstdata[[7]],l)))
+(gbm_accuracy2<-sum(diag(gbm_mtab2))/sum(gbm_mtab2))
+(gbm_cmx2<-confusionMatrix(gbm_mtab2))
+```
+
+As expected the performance doesn't really change. This is becouse he is combining essentially the results of the same model, with the same data. SO its a combination, votes, of the same result.
+
+#7-Ruffio's third tree ensamble classifier
+
+Interestingly he decides to do this yet again and combine again the same boosting model. But now he increases the nlev to the number of classes (4) plus 1, for a total of 5. This hyper-parameter defines the depth of the decision trees in the ensemble. Deeper trees should perform better. In boosting we can use rather shallow trees, and by feeding the output of each to the next, the overall performance will be good.
+
+```{r}
+nlev<-5 # number of classes+1
+gbm_model3<-gbm(class~buying+maint+doors+persons+lug_boot+safety, 	
+          data=car_eval,
+          n.trees=5000,
+          interaction.depth=nlev,
+	        shrinkage=0.001,
+          bag.fraction=0.8,
+          distribution="multinomial",
+          verbose=FALSE,
+          n.cores=4)
+gbm_class_probabilities3<-predict(gbm_model3,tstdata[,1:6],n.trees=5000,type="response")
+gbm_pred3<-apply(gbm_class_probabilities3,1,which.max)
+
+gbm_predicted_class3<-unlist(lapply(gbm_pred3,FUN=function(x)levels(tstdata[[7]])[[x]]))
+
+(gbm_mtab3<-table(gbm_predicted_class3,tstdata[[7]]))
+(gbm_accuracy3<-sum(diag(gbm_mtab3))/sum(gbm_mtab3))
+(gbm_cmx3<-confusionMatrix(gbm_mtab3))
+```
+
+As expected he obtains a better accuracy, but not by very much. Using deeper trees means result from model to model are better. As before sensitivity to the vgood class shows the classifier has missed some labels, but not many only 1. SO performance is slightly better than our very first model, but we might still pick a model with better vgood sensitivity if that is what we are after.
+
+#8-Ruffio's random forrest classifier
+
+He now tries a random forrest, which is also an ensemble method using decision trees. The difference is that random forests train each tree independently with a random sample of the data. This randomness helps making the model less likely to overfitting. This more generalized approach probably means it shows less performance.
+
+```{r}
+if(!require(randomForest))require(randomForest)
+rf_model<-randomForest(class~buying+maint+doors+persons+lug_boot+safety,
+data=car_eval)
+rf_pred<-predict(rf_model,tstdata[,1:6])
+rf_mtab<-table(rf_pred,tstdata[[7]])
+rf_cmx<-confusionMatrix(rf_mtab)
+rf_cmx$overall
+rf_cmx$byClass
+```
+
+Accuracy is as expected slightly lower than previous methods. In general boosting performs better than RF if parameters tuned carefully, as we saw when looking at these model.
+
+#9-Ruffio's xgboost classifier
+
+This is his last classifier type. Here he has tried a gradient boosted decision trees model designed for speed and performance. This model has several hyper-parameters, but not att affect performance. As before, with a boosting ensemble the depth of the trees is one that can be experimented with.
+
+```{r}
+if(!require(xgboost)) library(xgboost)
+if(!require(Matrix)) library(Matrix)
+trdatamx<-sparse.model.matrix(class~.-1,data=trdata)
+tstdatamx<-sparse.model.matrix(class~.-1,data=tstdata)
+
+xgb_model<-xgboost(data=trdatamx,label=trdata$class,max_depth = 2, 
+eta = 1, nrounds = 2,nthread = 2, objective = "multi:softmax",num_class=5)
+
+xgb_pred <- predict(xgb_model,tstdatamx)
+xgb_tab<-table( xgb_pred)
+xgb_mtab<-table(xgb_pred,tstdata[[7]])
+#xgb_cmx<-confusionMatrix(xgb_mtab)
+#xgb_cmx$overall
+#xgb_cmx$byClass
+
+
+xgb_model4<-xgboost(data=trdatamx,label=trdata$class,max_depth = 4, 
+eta = 1, nrounds = 3,nthread = 2, objective = "multi:softmax",num_class=5)
+ xgb_pred4 <- predict(xgb_model4,tstdatamx)
+xgb_tab4<-table( xgb_pred4)
+temp_xgb_tab4<-xgb_tab4
+
+xgb_pred4[which(xgb_pred4=="1")]<-levels(y)[1]
+xgb_pred4[which(xgb_pred4=="2")]<-levels(y)[2]
+xgb_pred4[which(xgb_pred4=="3")]<-levels(y)[3]
+xgb_pred4[which(xgb_pred4=="4")]<-levels(y)[4]
+xgb_mtab4<-table(xgb_pred4,tstdata[[7]])
+xgb_cmx4<-confusionMatrix(xgb_mtab4)
+xgb_cmx4$overall
+xgb_cmx4$byClass
+```
+
+Here he tried with rather shallow trees, max of 2. We see that the accuracy is actually lower than with simpler methods. Using more complex methods doesn't seem to add much performance to Ruffio's modeling.
+
+#10-Ruffio's second xgboost classifier
+
+As a last step, he tries the same model now with deeper trees.
+
+```{r}
+xgb_model5<-xgboost(data=trdatamx,label=trdata$class,max_depth = 5, 
+eta = 1, nrounds = 4,nthread = 2, objective = "multi:softmax",num_class=5)
+ xgb_pred5 <- predict(xgb_model5,tstdatamx)
+table( xgb_pred5)
+
+xgb_tab5<-table( xgb_pred5)
+temp_xgb_tab5<-xgb_tab5
+
+xgb_pred5[which(xgb_pred5=="1")]<-levels(y)[1]
+xgb_pred5[which(xgb_pred5=="2")]<-levels(y)[2]
+xgb_pred5[which(xgb_pred5=="3")]<-levels(y)[3]
+xgb_pred5[which(xgb_pred5=="4")]<-levels(y)[4]
+xgb_mtab5<-table(xgb_pred5,tstdata[[7]])
+xgb_cmx5<-confusionMatrix(xgb_mtab5)
+xgb_cmx5$overall
+xgb_cmx5$byClass
+```
+
+As with the previous ensemble where he did similar changes to the three depth, he sees an increase in performance with accuracy showing higher. But the performance of the model is still at par with several of his earlier models.
+
+#Last word
+
+Ruffio has tried many different classifier's, and has even gone into experimenting with many of its parameters. But at the end what we see is that even the simples model performs very well. In line with Occan's Razor, the simplest model can be used without the need to implement complicated and maybe intricate models that really produce similar results,

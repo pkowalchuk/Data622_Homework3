@@ -1,0 +1,86 @@
+[[1]]
+                       
+bag_class_probabilities acc good unacc vgood
+                  acc   118    1     2     1
+                  good    1   21     1     1
+                  unacc   2    0   349     0
+                  vgood   0    1     0    20
+
+[[2]]
+                   
+gbm_predicted_class acc good unacc vgood
+              acc   115    0     6     1
+              good    4   20     1     0
+              unacc   2    0   345     0
+              vgood   0    3     0    21
+
+[[3]]
+       
+        unacc acc vgood good
+  unacc   347   2     0    0
+  acc       4 115     1    0
+  vgood     0   0    21    3
+  good      1   4     0   20
+
+[[4]]
+                    
+gbm_predicted_class3 acc good unacc vgood
+               acc   117    1     4     1
+               good    3   20     1     0
+               unacc   1    0   347     0
+               vgood   0    2     0    21
+
+[[5]]
+       
+        acc good unacc vgood
+  acc   107   12    25     9
+  good    5    9     0     0
+  unacc   9    0   327     0
+  vgood   0    2     0    13
+
+[[6]]
+       
+rf_pred acc good unacc vgood
+  acc   118    2     8     3
+  good    1   18     0     0
+  unacc   2    0   344     0
+  vgood   0    3     0    19
+
+[[7]]
+                         
+rpart_class_probabilities acc good unacc vgood
+                    acc   106    0    14     5
+                    good   10   20     1     0
+                    unacc   4    0   337     0
+                    vgood   1    3     0    17
+
+[[8]]
+         
+vglm_pred acc good unacc vgood
+    acc   106    4    15     0
+    good    3   17     0     0
+    unacc  10    0   337     0
+    vgood   2    2     0    22
+
+[[9]]
+        
+xgb_pred acc good unacc vgood
+       1 121   23    71    22
+       3   0    0   281     0
+
+[[10]]
+         
+xgb_pred4 acc good unacc vgood
+    acc   100    6    24    12
+    good    3   11     1     0
+    unacc  18    3   327     0
+    vgood   0    3     0    10
+
+[[11]]
+         
+xgb_pred5 acc good unacc vgood
+    acc   109    0     8     6
+    good    4   17     1     0
+    unacc   7    3   343     0
+    vgood   1    3     0    16
+

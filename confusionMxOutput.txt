@@ -1,0 +1,297 @@
+[[1]]
+Confusion Matrix and Statistics
+
+                       
+bag_class_probabilities acc good unacc vgood
+                  acc   118    1     2     1
+                  good    1   21     1     1
+                  unacc   2    0   349     0
+                  vgood   0    1     0    20
+
+Overall Statistics
+                                          
+               Accuracy : 0.9807          
+                 95% CI : (0.9648, 0.9907)
+    No Information Rate : 0.6795          
+    P-Value [Acc > NIR] : < 2.2e-16       
+                                          
+                  Kappa : 0.9598          
+                                          
+ Mcnemar's Test P-Value : NA              
+
+Statistics by Class:
+
+                     Class: acc Class: good Class: unacc Class: vgood
+Sensitivity              0.9752     0.91304       0.9915      0.90909
+Specificity              0.9899     0.99394       0.9880      0.99798
+Pos Pred Value           0.9672     0.87500       0.9943      0.95238
+Neg Pred Value           0.9924     0.99595       0.9820      0.99598
+Prevalence               0.2336     0.04440       0.6795      0.04247
+Detection Rate           0.2278     0.04054       0.6737      0.03861
+Detection Prevalence     0.2355     0.04633       0.6776      0.04054
+Balanced Accuracy        0.9826     0.95349       0.9897      0.95354
+
+[[2]]
+Confusion Matrix and Statistics
+
+       
+        unacc acc vgood good
+  unacc   347   2     0    0
+  acc       4 115     1    0
+  vgood     0   0    21    3
+  good      1   4     0   20
+
+Overall Statistics
+                                          
+               Accuracy : 0.971           
+                 95% CI : (0.9527, 0.9837)
+    No Information Rate : 0.6795          
+    P-Value [Acc > NIR] : < 2.2e-16       
+                                          
+                  Kappa : 0.9402          
+                                          
+ Mcnemar's Test P-Value : NA              
+
+Statistics by Class:
+
+                     Class: unacc Class: acc Class: vgood Class: good
+Sensitivity                0.9858     0.9504      0.95455     0.86957
+Specificity                0.9880     0.9874      0.99395     0.98990
+Pos Pred Value             0.9943     0.9583      0.87500     0.80000
+Neg Pred Value             0.9704     0.9849      0.99798     0.99391
+Prevalence                 0.6795     0.2336      0.04247     0.04440
+Detection Rate             0.6699     0.2220      0.04054     0.03861
+Detection Prevalence       0.6737     0.2317      0.04633     0.04826
+Balanced Accuracy          0.9869     0.9689      0.97425     0.92973
+
+[[3]]
+Confusion Matrix and Statistics
+
+                    
+gbm_predicted_class3 acc good unacc vgood
+               acc   117    1     4     1
+               good    3   20     1     0
+               unacc   1    0   347     0
+               vgood   0    2     0    21
+
+Overall Statistics
+                                          
+               Accuracy : 0.9749          
+                 95% CI : (0.9575, 0.9866)
+    No Information Rate : 0.6795          
+    P-Value [Acc > NIR] : < 2.2e-16       
+                                          
+                  Kappa : 0.9482          
+                                          
+ Mcnemar's Test P-Value : NA              
+
+Statistics by Class:
+
+                     Class: acc Class: good Class: unacc Class: vgood
+Sensitivity              0.9669     0.86957       0.9858      0.95455
+Specificity              0.9849     0.99192       0.9940      0.99597
+Pos Pred Value           0.9512     0.83333       0.9971      0.91304
+Neg Pred Value           0.9899     0.99393       0.9706      0.99798
+Prevalence               0.2336     0.04440       0.6795      0.04247
+Detection Rate           0.2259     0.03861       0.6699      0.04054
+Detection Prevalence     0.2375     0.04633       0.6718      0.04440
+Balanced Accuracy        0.9759     0.93074       0.9899      0.97526
+
+[[4]]
+Confusion Matrix and Statistics
+
+       
+        acc good unacc vgood
+  acc   107   12    25     9
+  good    5    9     0     0
+  unacc   9    0   327     0
+  vgood   0    2     0    13
+
+Overall Statistics
+                                         
+               Accuracy : 0.8803         
+                 95% CI : (0.8492, 0.907)
+    No Information Rate : 0.6795         
+    P-Value [Acc > NIR] : < 2.2e-16      
+                                         
+                  Kappa : 0.7546         
+                                         
+ Mcnemar's Test P-Value : NA             
+
+Statistics by Class:
+
+                     Class: acc Class: good Class: unacc Class: vgood
+Sensitivity              0.8843     0.39130       0.9290      0.59091
+Specificity              0.8841     0.98990       0.9458      0.99597
+Pos Pred Value           0.6993     0.64286       0.9732      0.86667
+Neg Pred Value           0.9616     0.97222       0.8626      0.98211
+Prevalence               0.2336     0.04440       0.6795      0.04247
+Detection Rate           0.2066     0.01737       0.6313      0.02510
+Detection Prevalence     0.2954     0.02703       0.6486      0.02896
+Balanced Accuracy        0.8842     0.69060       0.9374      0.79344
+
+[[5]]
+Confusion Matrix and Statistics
+
+       
+rf_pred acc good unacc vgood
+  acc   118    2     8     3
+  good    1   18     0     0
+  unacc   2    0   344     0
+  vgood   0    3     0    19
+
+Overall Statistics
+                                          
+               Accuracy : 0.9633          
+                 95% CI : (0.9433, 0.9778)
+    No Information Rate : 0.6795          
+    P-Value [Acc > NIR] : < 2.2e-16       
+                                          
+                  Kappa : 0.9242          
+                                          
+ Mcnemar's Test P-Value : NA              
+
+Statistics by Class:
+
+                     Class: acc Class: good Class: unacc Class: vgood
+Sensitivity              0.9752     0.78261       0.9773      0.86364
+Specificity              0.9673     0.99798       0.9880      0.99395
+Pos Pred Value           0.9008     0.94737       0.9942      0.86364
+Neg Pred Value           0.9922     0.98998       0.9535      0.99395
+Prevalence               0.2336     0.04440       0.6795      0.04247
+Detection Rate           0.2278     0.03475       0.6641      0.03668
+Detection Prevalence     0.2529     0.03668       0.6680      0.04247
+Balanced Accuracy        0.9712     0.89029       0.9826      0.92879
+
+[[6]]
+Confusion Matrix and Statistics
+
+                         
+rpart_class_probabilities acc good unacc vgood
+                    acc   106    0    14     5
+                    good   10   20     1     0
+                    unacc   4    0   337     0
+                    vgood   1    3     0    17
+
+Overall Statistics
+                                          
+               Accuracy : 0.9266          
+                 95% CI : (0.9007, 0.9476)
+    No Information Rate : 0.6795          
+    P-Value [Acc > NIR] : < 2.2e-16       
+                                          
+                  Kappa : 0.8509          
+                                          
+ Mcnemar's Test P-Value : NA              
+
+Statistics by Class:
+
+                     Class: acc Class: good Class: unacc Class: vgood
+Sensitivity              0.8760     0.86957       0.9574      0.77273
+Specificity              0.9521     0.97778       0.9759      0.99194
+Pos Pred Value           0.8480     0.64516       0.9883      0.80952
+Neg Pred Value           0.9618     0.99384       0.9153      0.98994
+Prevalence               0.2336     0.04440       0.6795      0.04247
+Detection Rate           0.2046     0.03861       0.6506      0.03282
+Detection Prevalence     0.2413     0.05985       0.6583      0.04054
+Balanced Accuracy        0.9141     0.92367       0.9666      0.88233
+
+[[7]]
+Confusion Matrix and Statistics
+
+         
+vglm_pred acc good unacc vgood
+    acc   106    4    15     0
+    good    3   17     0     0
+    unacc  10    0   337     0
+    vgood   2    2     0    22
+
+Overall Statistics
+                                          
+               Accuracy : 0.9305          
+                 95% CI : (0.9051, 0.9509)
+    No Information Rate : 0.6795          
+    P-Value [Acc > NIR] : < 2.2e-16       
+                                          
+                  Kappa : 0.8566          
+                                          
+ Mcnemar's Test P-Value : NA              
+
+Statistics by Class:
+
+                     Class: acc Class: good Class: unacc Class: vgood
+Sensitivity              0.8760     0.73913       0.9574      1.00000
+Specificity              0.9521     0.99394       0.9398      0.99194
+Pos Pred Value           0.8480     0.85000       0.9712      0.84615
+Neg Pred Value           0.9618     0.98795       0.9123      1.00000
+Prevalence               0.2336     0.04440       0.6795      0.04247
+Detection Rate           0.2046     0.03282       0.6506      0.04247
+Detection Prevalence     0.2413     0.03861       0.6699      0.05019
+Balanced Accuracy        0.9141     0.86653       0.9486      0.99597
+
+[[8]]
+Confusion Matrix and Statistics
+
+         
+xgb_pred4 acc good unacc vgood
+    acc   100    6    24    12
+    good    3   11     1     0
+    unacc  18    3   327     0
+    vgood   0    3     0    10
+
+Overall Statistics
+                                          
+               Accuracy : 0.8649          
+                 95% CI : (0.8324, 0.8931)
+    No Information Rate : 0.6795          
+    P-Value [Acc > NIR] : < 2.2e-16       
+                                          
+                  Kappa : 0.7168          
+                                          
+ Mcnemar's Test P-Value : NA              
+
+Statistics by Class:
+
+                     Class: acc Class: good Class: unacc Class: vgood
+Sensitivity              0.8264     0.47826       0.9290      0.45455
+Specificity              0.8942     0.99192       0.8735      0.99395
+Pos Pred Value           0.7042     0.73333       0.9397      0.76923
+Neg Pred Value           0.9441     0.97614       0.8529      0.97624
+Prevalence               0.2336     0.04440       0.6795      0.04247
+Detection Rate           0.1931     0.02124       0.6313      0.01931
+Detection Prevalence     0.2741     0.02896       0.6718      0.02510
+Balanced Accuracy        0.8603     0.73509       0.9012      0.72425
+
+[[9]]
+Confusion Matrix and Statistics
+
+         
+xgb_pred5 acc good unacc vgood
+    acc   109    0     8     6
+    good    4   17     1     0
+    unacc   7    3   343     0
+    vgood   1    3     0    16
+
+Overall Statistics
+                                          
+               Accuracy : 0.9363          
+                 95% CI : (0.9117, 0.9557)
+    No Information Rate : 0.6795          
+    P-Value [Acc > NIR] : < 2.2e-16       
+                                          
+                  Kappa : 0.8667          
+                                          
+ Mcnemar's Test P-Value : NA              
+
+Statistics by Class:
+
+                     Class: acc Class: good Class: unacc Class: vgood
+Sensitivity              0.9008     0.73913       0.9744      0.72727
+Specificity              0.9647     0.98990       0.9398      0.99194
+Pos Pred Value           0.8862     0.77273       0.9717      0.80000
+Neg Pred Value           0.9696     0.98790       0.9455      0.98795
+Prevalence               0.2336     0.04440       0.6795      0.04247
+Detection Rate           0.2104     0.03282       0.6622      0.03089
+Detection Prevalence     0.2375     0.04247       0.6815      0.03861
+Balanced Accuracy        0.9328     0.86451       0.9571      0.85960
+
